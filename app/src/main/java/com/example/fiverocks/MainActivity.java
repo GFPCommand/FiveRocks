@@ -19,11 +19,13 @@ public class MainActivity extends AppCompatActivity {
             but41, but42, but43, but44, but45,
             but51, but52, but53, but54, but55;
 
-    private TextView turn;
+    private TextView turn, win;
 
     private boolean turnCross = true, turnCircle = false, isGameEnd = false;
-    private int [][] fieldArray = new int[5][5];
+    private int size = 5;
+    private int [][] fieldArray = new int[size][size];
     private int countFreeFields = 25;
+    private int maxLengthOfCross = 0, maxLengthOfCircle = 0;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         turn = findViewById(R.id.turn);
 
         newGame = findViewById(R.id.NewGame);
+        win = findViewById(R.id.win);
 
         but11 = findViewById(R.id.but11);
         but12 = findViewById(R.id.but12);
@@ -574,14 +577,18 @@ public class MainActivity extends AppCompatActivity {
             isGameEnd = false;
 
             turn.setText("Turn: X");
+            win.setText("");
 
-            for (int i = 0; i < 5; i++){
-                for (int j = 0; j < 5; j++){
+            for (int i = 0; i < size; i++){
+                for (int j = 0; j < size; j++){
                     fieldArray[i][j] = 0;
                 }
             }
 
             countFreeFields = 25;
+
+            maxLengthOfCross  = 0;
+            maxLengthOfCircle = 0;
 
             newGame.setVisibility(INVISIBLE);
 
@@ -620,14 +627,407 @@ public class MainActivity extends AppCompatActivity {
     public void CheckEndGame(){
         if (countFreeFields == 0) isGameEnd = true;
 
-        for (int i = 0; i < 5; i++){
-            for (int j = 0; j < 5; j++){
+        for (int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
                 if (fieldArray[i][j] != 0 && isGameEnd){
                     newGame.setVisibility(VISIBLE);
                 }
             }
         }
 
-        if (isGameEnd) turn.setText("");
+        if (isGameEnd) {
+            turn.setText("");
+
+            CheckWinner();
+        }
+    }
+
+    public void CheckWinner(){
+        CheckHorizontal();
+        CheckVertical();
+
+        CheckLeftDiagonal();
+        CheckRightDiagonal();
+
+        if (maxLengthOfCircle > maxLengthOfCross) win.setText("Win: O");
+        else if (maxLengthOfCircle < maxLengthOfCross) win.setText("Win: X");
+        else if (maxLengthOfCross == maxLengthOfCircle) win.setText("Win: X and O");
+    }
+
+    public void CheckHorizontal(){
+        for (int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
+                int k = j;
+                int currX = 0;
+                int currO = 0;
+
+                while (fieldArray[i][k] == 1 && k < size){
+                    currX++;
+                    k++;
+                    if (k == 5) break;
+                }
+
+                k = j;
+
+                while (fieldArray[i][k] == 2 && k < size){
+                    currO++;
+                    k++;
+                    if (k == 5) break;
+                }
+
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+
+                j = k;
+            }
+        }
+    }
+
+    public void CheckVertical(){
+        for (int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
+                int k = j;
+                int currX = 0;
+                int currO = 0;
+
+                while (fieldArray[k][i] == 1 && k < size){
+                    currX++;
+                    k++;
+                    if (k == 5) break;
+                }
+
+                k = j;
+
+                while (fieldArray[k][i] == 2 && k < size){
+                    currO++;
+                    k++;
+                    if (k == 5) break;
+                }
+
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+
+                j = k;
+            }
+        }
+    }
+
+    public void CheckLeftDiagonal(){
+        for (int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1) {
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2) {
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        // ----------Diagonals above main diagonal----------
+
+        for (int i = 0; i < size-1; i++) {
+            for (int j = i+1; j < size; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        for (int i = 0; i < size-2; i++) {
+            for (int j = i+2; j < size; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        for (int i = 0; i < size-3; i++) {
+            for (int j = i+3; j < size; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        //--------------------------------------------------
+
+        // ----------Diagonals under main diagonal----------
+
+        for (int i = 1; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        for (int i = 2; i < size; i++) {
+            for (int j = 0; j < size-2; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size&& l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+
+        for (int i = 3; i < size; i++) {
+            for (int j = 0; j < size-3; j++) {
+                int k = j, l = i;
+                int currX = 0;
+                int currO = 0;
+
+                while (k < size && l < size && fieldArray[l][k] == 1){
+                    currX++;
+                    k++;
+                    l++;
+                }
+
+                k = j;
+                l = i;
+
+                while (k < size && l < size && fieldArray[l][k] == 2){
+                    currO++;
+                    k++;
+                    l++;
+                }
+
+                j = k;
+                i = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+            }
+        }
+    }
+
+    public void CheckRightDiagonal(){
+        for (int i = 0, j = 4; i < size; i++, j--){
+            int k = j, l = i;
+            int currX = 0;
+            int currO = 0;
+
+            while (l < size && k > -1 && fieldArray[l][k] == 1){
+                currX++;
+                k--;
+                l++;
+            }
+
+            k = j;
+            l = i;
+
+            while (l < size && k > -1 && fieldArray[l][k] == 2){
+                currO++;
+                k--;
+                l++;
+                if (k == -1 && l == 5) break;
+            }
+
+            j = k;
+            i = l;
+
+            if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+            if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+
+            if (j < 0) break;
+        }
+
+        // ----------Diagonals above secondary diagonal----------
+
+        for (int i = 3; i > -1; i--) {
+            for (int m = 0, n = i; m < size; m++, n--) {
+                int k = n, l = m;
+                int currX = 0;
+                int currO = 0;
+
+                while (l < size && k > -1 && fieldArray[l][k] == 1){
+                    currX++;
+                    k--;
+                    l++;
+
+                    if (k == -1 && l == 5) break;
+                }
+
+                k = n;
+                l = m;
+
+                while (l < size && k > -1 && fieldArray[l][k] == 2){
+                    currO++;
+                    k--;
+                    l++;
+
+                    if (k == -1 && l == 5) break;
+                }
+
+                n = k;
+                m = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+
+                if (n < 0) break;
+            }
+        }
+
+        //--------------------------------------------------
+
+        // ----------Diagonals under secondary diagonal----------
+
+        for (int i = 1; i < size; i++) {
+            for (int m = i, n = 4; m < size; m++, n--) {
+                int k = n, l = m;
+                int currX = 0;
+                int currO = 0;
+
+                while (l < size && k > -1 && fieldArray[l][k] == 1){
+                    currX++;
+                    k--;
+                    l++;
+
+                    if (k == -1 && l == 5) break;
+                }
+
+                k = n;
+                l = m;
+
+                while (l < size && k > -1 && fieldArray[l][k] == 2){
+                    currO++;
+                    k--;
+                    l++;
+
+                    if (k == -1 && l == 5) break;
+                }
+
+                n = k;
+                m = l;
+
+                if (maxLengthOfCross < currX) maxLengthOfCross = currX;
+                if (maxLengthOfCircle < currO) maxLengthOfCircle = currO;
+
+                if (n < 0) break;
+            }
+        }
     }
 }
