@@ -836,7 +836,7 @@ public class MainActivity extends AppCompatActivity {
         // ----------Diagonals under main diagonal----------
 
         for (int i = 1; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+            for (int j = 0; j < size-1; j++) {
                 int k = j, l = i;
                 int currX = 0;
                 int currO = 0;
